@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 #### :star:  내가 맨날 헷갈리는거 ㅠㅠ :star:
 
 ![image-20200829162348152](fig/image-20200829162348152.png)
@@ -12,7 +16,7 @@
 
   
 
-  <img src="../Typora%2520%25EB%25AC%25B8%25EC%2584%259C/%25ED%2595%2584%25EA%25B8%25B0/fig/image-20200829163801730.png" alt="image-20200829163801730" style="zoom:20%;" />
+  <img src="fig/image-20200829163801730.png" alt="image-20200829163801730" style="zoom:20%;" />
 
 
 
@@ -142,17 +146,17 @@
 >
 > ```python
 > for _ in range(int(input())):
->  n = int(input())
->  arr = [0]*(n+2) + [1]
->  arr[0], arr[1] = 0,1
+> n = int(input())
+> arr = [0]*(n+2) + [1]
+> arr[0], arr[1] = 0,1
 > 
->  def fibo(n):
->      if arr[n] or n == 0:
->          return arr[n]
->      arr[n] = fibo(n-2) + fibo(n-1)
->      return arr[n]
->  fibo(n)
->  print(arr[n-1],arr[n])
+> def fibo(n):
+>   if arr[n] or n == 0:
+>       return arr[n]
+>   arr[n] = fibo(n-2) + fibo(n-1)
+>   return arr[n]
+> fibo(n)
+> print(arr[n-1],arr[n])
 > ```
 
 
@@ -293,7 +297,7 @@ def solution(land):
 
 * 시간은 비슷하지만 코드 길이에서 차이가 확 나고 디버깅 시에도 편하다 ~
 
-<img src="C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200404223707818.png" alt="image-20200404223707818" style="zoom:80%;" />
+<img src="fig/image-20200404223707818.png" alt="image-20200404223707818" style="zoom:80%;" />
 
 * 정답을 쪼개보자 !!
 
@@ -408,7 +412,7 @@ print(arr[n])
 
 * 후자는 다시 +1을 해서 돌아올 수 있음.
 
-  <img src="../Typora%2520%25EB%25AC%25B8%25EC%2584%259C/%25ED%2595%2584%25EA%25B8%25B0/fig/image-20200829213511254.png" alt="image-20200829213511254" style="zoom:33%;" />
+  <img src="fig/image-20200829213511254.png" alt="image-20200829213511254" style="zoom:33%;" />
 
 
 
@@ -441,7 +445,7 @@ print(DP(K))
 
 ###### 0829 숏코디이이잉
 
-<img src="../Typora%2520%25EB%25AC%25B8%25EC%2584%259C/%25ED%2595%2584%25EA%25B8%25B0/fig/image-20200829220618058.png" alt="image-20200829220618058" style="zoom: 67%;" />
+<img src="fig/image-20200829220618058.png" alt="image-20200829220618058" style="zoom: 67%;" />
 
 * 위 코드보다 시간이 더 걸린 이유는, x가 2의 배수인지 아닌지를 나누지 않았기 때문 ! 이걸 안나누면 연산을 조금 더해야함
 
@@ -485,7 +489,7 @@ print(DP(K))
 
 ## :large_blue_circle: 숨바꼭질2 ; 최소 연산 수와 경로 수를 return해라
 
-<img src="../Typora%2520%25EB%25AC%25B8%25EC%2584%259C/%25ED%2595%2584%25EA%25B8%25B0/fig/image-20200829230453461.png" alt="image-20200829230453461" style="zoom: 67%;" />
+<img src="fig/image-20200829230453461.png" alt="image-20200829230453461" style="zoom: 67%;" />
 
 ```python
 def DP(x):
@@ -505,7 +509,7 @@ print(arr[K][1])
 
 * 숨바꼭질 1의 코드를 최소한으로 수정했다 !
 
-<img src="../Typora%2520%25EB%25AC%25B8%25EC%2584%259C/%25ED%2595%2584%25EA%25B8%25B0/fig/image-20200829233503402.png" alt="image-20200829233503402" style="zoom:67%;" />
+<img src="fig/image-20200829233503402.png" alt="image-20200829233503402" style="zoom:67%;" />
 
 1. 일단 최단 연산수를 return해야하니까 그대로 두되, 이 연산을 위해 최단을 몇번 마주쳤는지를 어떻게 계산할까에 초점을 두었다.
 2. 일단 cnt로 x로 다다르는 최단 연산 수의 종류를 구하고
@@ -682,7 +686,7 @@ def solution(m, n, puddles):
     return board[-1][-1]
 ```
 
-<img src="C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200406211242390.png" alt="image-20200406211242390" style="zoom:80%;" />
+<img src="fig/image-20200406211242390.png" alt="image-20200406211242390" style="zoom:80%;" />
 
 2. 재귀
 
@@ -742,16 +746,3 @@ def solution(money):
 ```
 
 * for문 1개로 줄이는거 생각해보쟈 ,,
-
-```python
-def solution(a):
-    x1, y1, z1 = a[0], a[1], a[0]+a[2]
-    x2, y2, z2 = 0, a[1], a[2]
-    for i in a[3:]:
-        x1, y1, z1 = y1, z1, max(x1, y1)+i
-        x2, y2, z2 = y2, z2, max(x2, y2)+i
-    return max(x1, y1, y2, z2)
-```
-
-
-
