@@ -2,7 +2,19 @@
 
 카카오 블라인드 코딩테스트 2차를 준비하기 위해 2019년도 기출인 엘리베이터를 풀어보려던 중에 Go나 Docker가 필요함을 깨달았다.
 
-전에 khaiii를 돌려보려고 docker를 설치했다가 꼬여버려서 때려친 기억이 ... 있는데 이번 기회에 다시 도전해봐야겠다 !
+전에 khaiii를 돌려보려고 docker를 설치했다가 에러를 해결 못해서 그냥 코랩에서 돌렸었는데, 이번 기회에 다시 도전해봐야겠다 !
+
+
+
+Docker 설치 방법과 설치시 만날 수 있는 에러, 그리고 잘 설치 되었는지 확인하기 위해 카카오 블라인드 2019 엘리베이터 문제를 실행시켜보자.
+
+
+
+## 일러두기 : API 연습용이라면, window 사용자는 go로 !
+
+docker를 이용하면 api 응답 하나에 2초씩 걸린다. 그럼 call만으로도 token 유효시간 10분을 훌쩍 넘는다.
+
+anaconda나 기본 command에서 하지 말고 git bash에서 돌리면 아~무 error없이 바로 돌아간다. (go get ./에서 약간 시간이 걸린다.)
 
 
 
@@ -43,6 +55,8 @@
 
 ##### 2. Full installation하자. 나는 이미 Oracle VM VitrualBox가 있어서 따로 설치하지 않았다.
 
+> 이미 있는 사람은 설치 위치를 체크하자. 위치가 다르면 에러가 난다 ㅠㅠ
+
 ![image-20200920143058380](fig/image-20200920143058380.png)
 
 ![image-20200920143114020](fig/image-20200920143114020.png)
@@ -60,16 +74,20 @@ Looks like something went wrong in step ´Looking for vboxmanage.exe´... Press 
 
 ##### :thinking: 의심되는 원인
 
-1. VirtualBox와 Docker의 location이 다르다.
+1. **VirtualBox와 Docker의 설치 위치가 다르다.**
 2. Admin user로 로그인/설치하지 않았다.
 
 
 
-어짜피 현재 User ID를 주로 쓰고 있는 만큼 그냥 관리자 권한도 줘버리고 ! VirtualBox도 새로운 마음으로 다시 깔자 싶어서 다음 절차를 따라 다시 설치했다. (아마 VirtualBox나 Git 등을 처음 설치한다면 이런 error는 없을 것이다. 에러 원인은 1번으로 보인다.)
+Docker가 깔린 폴더에 접근할 수 없어서 not installed라고 인식하는걸까? 싶어서 현재 ID에 관리자 권한을 줬지만 달라지지 않았다.
+
+에러 원인은 1번으로 보인다. VirtualBox나 Git 등을 처음 설치한다면 이런 error는 없을 것이다.
+
+나는 이전에 SAS 사용을 위해서 VirtualBox를 깐적이 있었는데 이 위치와 Git이 깔린 위치가 달랐다! 새로 깔면 문제는 해결된다.
 
 
 
-1. 현재 User에 Administrator 권한을 준다.
+1. 현재 User에 Administrator 권한을 준다. ()
 
 2. Toolbox 설치 경로를 C드라이브 하위가 아니라 `C > User > 현재 User` 에 설치한다. (Git, VB 등 모두)
 
@@ -85,7 +103,7 @@ Looks like something went wrong in step ´Looking for vboxmanage.exe´... Press 
 
 
 
-잘 설치되었는지 확인해보기
+잘 설치되었는지 확인해보기 !
 
 ```python
 # docker terminal에서
@@ -108,7 +126,7 @@ docker run hello-world
 
 ## 2019 Elevator 돌려보기
 
-공식 repository에서 설명한 대로 다음을 실행시키면 !!!!! 아무 화면도 만날 수 없다 ㅎㅎ 연결이 되지 않는다.
+공식 repository에서 설명한 대로 다음을 실행시키면 !!!!! **아무 화면도 만날 수 없다 !** 당연하다 !
 
 ```
 $ git clone https://github.com/kakao-recruit/2019-blind-2nd-elevator.git 
@@ -129,7 +147,7 @@ $ python example.py
 
 ![img](fig/img.png)local과 내 window도 연결이 되어있고, VM과 docker 역시 `docker run -p 8000:8000`을 통해 연결시켰지만 window와 VM 사이에 연결이 아직 되어있지 않다 !
 
-고로 포트포워딩을 통해 window와 VM을 연결해주어야 한다.
+고로 **포트포워딩**을 통해 window와 VM을 연결해주어야 한다.
 
 
 
@@ -156,3 +174,4 @@ $ python example.py
 
 
 ![image-20200920160015603](fig/image-20200920160015603.png)
+
