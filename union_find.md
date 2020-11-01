@@ -90,14 +90,14 @@
 
    `p[i] == i `
 
-   <img src="../fig/image-20200330071742549.png" alt="image-20200330071742549" style="zoom:80%;" />
+   <img src="fig/image-20200330071742549.png" alt="image-20200330071742549" style="zoom:80%;" />
 
 2. `Union(1,2) `; 1과 2가 포함되어있는 그래프를 합쳐라
    `Union(3,4)`
 
    * 일반적으로, **더 작은 값을 부모 노드로** 둔다.
 
-   <img src="../fig/image-20200330071939615.png" alt="image-20200330071939615" style="zoom:80%;" />
+   <img src="fig/image-20200330071939615.png" alt="image-20200330071939615" style="zoom:80%;" />
 
 
 
@@ -111,7 +111,7 @@
 
        3 -> 2-> 1-> 1 이므로 3 -> 1
 
-   <img src="../fig/image-20200330072045151.png" alt="image-20200330072045151" style="zoom:80%;" />
+   <img src="fig/image-20200330072045151.png" alt="image-20200330072045151" style="zoom:80%;" />
 
 4. 재귀적 연산을 수행하여 가장 위쪽 부모노드로 값을 바꾸고 나면
 
@@ -124,7 +124,7 @@
 
    | 재구조화 전                                                  | 후                                                           |
    | ------------------------------------------------------------ | ------------------------------------------------------------ |
-   | <img src="../fig/image-20200330081617566.png" alt="image-20200330081617566" style="zoom:50%;" />![image-20200330081631239](C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200330081631239.png) | <br /><img src="../fig/image-20200330081658738.png" alt="image-20200330081658738" style="zoom:67%;" /> |
+   | <img src="fig/image-20200330081617566.png" alt="image-20200330081617566" style="zoom:50%;" />![image-20200330081631239](C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200330081631239.png) | <br /><img src="fig/image-20200330081658738.png" alt="image-20200330081658738" style="zoom:67%;" /> |
 
    
 
@@ -203,7 +203,7 @@ def getParent(curr_node):
 
     그러나 반대의 경우에는 **2번의 연산만** 하면 된다 !! (이 방법은 아래서 구현해보자.)
 
-<img src="../fig/image-20200330182756080.png" alt="image-20200330182756080" style="zoom:80%;" />
+<img src="fig/image-20200330182756080.png" alt="image-20200330182756080" style="zoom:80%;" />
 
 ```python
 def unionParent(node1, node2):
@@ -229,7 +229,7 @@ def findParent(node1, node2):
 
 ### 4. 실습
 
-<img src="../fig/image-20200330182814539.png" alt="image-20200330182814539" style="zoom:80%;" />
+<img src="fig/image-20200330182814539.png" alt="image-20200330182814539" style="zoom:80%;" />
 
 ```python
 class myGraph():
@@ -413,7 +413,7 @@ for _ in range(M):
 
 도시들의 개수와 도시들 간의 연결 여부가 주어져 있고, 동혁이의 여행 계획에 속한 도시들이 순서대로 주어졌을 때(중복 가능) 가능한지 여부를 판별하는 프로그램을 작성하시오.
 
-<img src="../fig/image-20200330222019418.png" alt="image-20200330222019418" style="zoom:80%;" />
+<img src="fig/image-20200330222019418.png" alt="image-20200330222019418" style="zoom:80%;" />
 
 * 괜히 reduce 썼다가 시간만 늘어났네 .. set 쓰자...
 
@@ -574,7 +574,7 @@ for _ in range(int(input())):
 
 
 
-<img src="../fig/image-20200331034805013.png" alt="image-20200331034805013" style="zoom:80%;" />
+<img src="fig/image-20200331034805013.png" alt="image-20200331034805013" style="zoom:80%;" />
 
 * `union( 현재 노드, 다음에 이 노드가 들어오면 사용할 값 )`
 
@@ -620,7 +620,7 @@ print(answer)
 
   고로 result-1 에 대해서도 꼭 `find`연산을 해야함.
 
-![image-20200401051819487](../fig/image-20200401051819487.png)
+![image-20200401051819487](fig/image-20200401051819487.png)
 
 <img src="C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200401051719094.png" alt="image-20200401051719094" style="zoom:80%;" />
 
