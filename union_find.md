@@ -31,72 +31,6 @@
 
 특수한 상황에서는 대소비교후 swap해서 부모 ,자식을 결정해야함. 경로 압축이 제대로 되게 만들기 위해서 + 시간을 줄이기 위해서는 해주자.
 
-# :apple: UnionFind 뿌시기 :green_book:
-
-#### 그래프 연결 : \[지금 노드] => \[미래에 갈 노드]
-
-* 오늘 1을 썼으면 내일은 1을 쓸 수 없을 때, 1과 2를 이어준다
-
-  미래에 2를 쓰도록 유도한다.
-
-  1-2 이고 3-4만 있으면 , 2는 아직 쓰지 않은 것이고
-
-  연결 후 1-2-3-4가 되면 앞으로 모두 4만 쓸 수 있다.
-
-#### p[a]가 부모 노드만 갖게 할 것인지, 집합 원소의 음수를 줄 것인지.
-
-
-
-#### 모든 node가 같은 부모를 가지면 중지해라 .... ?
-
-즉 `p = [0,1,1,1,1,1]`이면 중지하고 싶다...
-
-이럴 땐 p안을 일일이 확인하는 것이 아니라
-
-부모는 집합 원소의 음수를 갖게 코딩해서
-
-**<u>`find(1) == -N`일때 중지해라 ! 로 만들 수 있다.</u>**
-
-
-
-
-
-#### union 함수에 대소비교는 해주면 좋다.
-
-* 특수한 상황에서는 대소비교후 swap해서 부모 ,자식을 결정해야함.
-
-* 그러나 그렇게 안짜도 뚫리는 경우가 있음
-
-  되긴 되는데 시간이 늘어남
-
-* 그냥 코드를 늘리고 시간을 줄이다.
-
-
-
-
-
-# Union - Find ; 자료구조
-
-##### 설명
-
-> http://blog.naver.com/kks227/220791837179
->
-> http://blog.naver.com/kks227/220791837179
-
-
-
-##### 문제 풀어보기
-
->백준에서 분리 집합/Disjoint set 태크 찾아서 공부 !
->
->Disjoint https://www.acmicpc.net/problem/tag/Disjoint-set
->
->https://www.acmicpc.net/workbook/view/900 ~~다 해결~~
->
->http://blog.naver.com/kks227/220791837179  방 청소 실패, ~~나머지는 pass~~
->
->http://blog.naver.com/PostView.nhn?blogId=kks227&logNo=221673077530&parentCategoryNo=260&categoryNo=&viewDate=&isShowPopularPosts=false&from=postList ~~문명~~ / 백조 / Haybale Feast
-
 
 
 * 그래프나 집합 원소가 계속 늘어나는 상황이고, 갯수가 필요할 때(친구 네트웤)
@@ -111,7 +45,6 @@
 
 * 과반수 출현 시점 확인
 
-[TOC]
 
 
 
@@ -256,14 +189,6 @@ def getParent(curr_node):
     return parent[curr_node]
     # 3의 부모         =                  parent[3] == 2의 부모
 ```
-
-```python
-# while문으로 만들 수도 있다.
-# 근데 얘가 더 시간초과 ,,? 얘는 한스텝씩밖에 못갈듯. 경로 압축이 맞나?
-while p[a] != a:
-    p[a] = p[p[a]]
-```
-
 
 
 ### 2. node1, node2 집합 합치기 == 부모노드 같게하기
@@ -607,12 +532,6 @@ for _ in range(int(input())):
         print(p[find(a)]) # a,b가 속한 네트워크의 총 친구수
 ```
 
-<img src="C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200330233627294.png" alt="image-20200330233627294" style="zoom:80%;" />
-
-호오오옹 영광스럽네유
-
-
-
 
 
 # 10775 공항 ★★★★★★★★★★
@@ -705,54 +624,11 @@ print(answer)
 
 <img src="C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200401051719094.png" alt="image-20200401051719094" style="zoom:80%;" />
 
-# 9938 방청소
-
-* 틀렸다 .. 언젠가 다시 풀자 .. ㅠ
-
-> https://strawberry-moon329.tistory.com/19
-> root에 빈 서랍의 수를 적어놓자 ..?
-
-```python
-import sys
-input = sys.stdin.readline
-
-def find(a):
-    if p[a] == a: return a
-    if p[a] <0 : return L
-    p[a] = find(p[a])
-    return p[a]
-
-def union(a,b):
-    x,y = find(a),find(b)
-    if p[x]>p[y]: x,y = y,x
-    p[x] = y
-
-N,L = map(int,input().split())
-p = [i for i in range(L)]+[-1]
-
-for i in range(min(N,L)):
-    A,B = map(int,input().split())
-    if find(A) == A: x = A
-    elif find(B) == B: x = B
-    else: x = find(A)
-    if x == L:
-        if find(x) == L:
-            union(1,x)
-        else:
-            union(find(1),find(1)+1) # 한칸씩 밀린 결과를 반영
-    else: union(x,x+1)
-    print("LADICA")
-    print(p)
-for _ in range(N-L):
-    print("SMECE")
-
-```
-
 
 
 # ★★★ 14868 문명
 
-#### 0807 / 내가 문제 이해를 잘못한거여꾼 ,,,,,
+#### 0807 / 내가 문제 이해를 잘못한거였다 ,,,,,
 
 ##### 1 ) 전파했는데 누가 있으면 합쳐진다? (x) 내 주변에 누가 있으면 합쳐진다 (o)
 
