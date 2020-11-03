@@ -11,10 +11,12 @@
 * tree 형태
 * 자동 완성, 문자열 검사, 사전에서 찾기 등
 
-<img src="C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200807163209585.png" alt="image-20200807163209585" style="zoom: 67%;" />
+![image-20200807163209585.](fig/image-20200807163209585.png)
+![image-20200807164136156](fig/image-20200807164136156.png)
 
-![image-20200807164136156](C:\Users\haeyu\AppData\Roaming\Typora\typora-user-images\image-20200807164136156.png)
 
+
+* root node는 None. 비어있다.
 
 
 * root node는 None. 비어있다.
