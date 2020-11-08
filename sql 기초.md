@@ -1,5 +1,3 @@
-[TOC]
-
 # What is SQL?
 
 [:woman_teacher: SQL 기본 개념 공부하기](https://www.w3schools.com/sql/sql_intro.asp) [:100: 기본 연습문제 풀어보기](https://www.w3schools.com/sql/exercise.asp?filename=exercise_functions1) [:computer: 실습하기](https://www.w3schools.com/sql/trysql.asp?filename=trysql_select_where_number)
