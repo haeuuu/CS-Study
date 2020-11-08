@@ -1,8 +1,8 @@
+[TOC]
+
 # What is SQL?
 
-> [웹에서 sql 연습하기](https://www.w3schools.com/sql/sql_intro.asp)
->
-> [실행 결과 확인하기](https://www.w3schools.com/sql/trysql.asp?filename=trysql_select_all)
+[:woman_teacher: SQL 기본 개념 공부하기](https://www.w3schools.com/sql/sql_intro.asp) [:100: 기본 연습문제 풀어보기](https://www.w3schools.com/sql/exercise.asp?filename=exercise_functions1) [:computer: 실습하기](https://www.w3schools.com/sql/trysql.asp?filename=trysql_select_where_number)
 
 * Structured Query Language
 * DB를 조작하고 접근할 수 있게 한다.
@@ -11,19 +11,17 @@
 
 
 
-### table = record * field
+**field**
 
-##### field
+​	모든 table은 field라고 불리는 작은 entity들로 쪼개질 수 있다. 
 
-모든 table은 field라고 불리는 작은 entity들로 쪼개질 수 있다. 
-
-columns/attribute라고 생각하면 될듯. 고객의 이름, 전화번호, id 등은 모두 field이다.
+​	columns/attribute라고 생각하면 될듯. 고객의 이름, 전화번호, id 등은 모두 field이다.
 
 
 
-##### record
+**record**
 
-row/하나의 instance라고 생각하면 된다.
+​	row/하나의 instance라고 생각하면 된다.
 
 
 
@@ -33,7 +31,7 @@ row/하나의 instance라고 생각하면 된다.
 
 
 
-### data
+**data**
 
 SELECT : data 가져오기
 
@@ -43,7 +41,9 @@ DELETE : data 삭제하기
 
 INSERT INTO : 새로운 data 삽입하기
 
-### table
+
+
+**table**
 
 CREATE TABLE : 새로운 table 만들기
 
@@ -51,13 +51,17 @@ ALTER TABLE : table 수정하기
 
 DROP TABLE : table 지우기
 
-### index
+
+
+**index**
 
 CREATE INDEX : 새로운 index 즉 search key 생성하기
 
 DROP INDEX : index 지우기
 
-### DB
+
+
+**DB**
 
 CREATE DATABASE : 새로운 DB 만들기
 
@@ -65,7 +69,7 @@ ALTER DATABASE : DB 수정하기
 
 
 
-## Customers 로 실습해보자 !
+**Customers 로 실습해보자 !**
 
 | CustomerID | CustomerName                       | ContactName        | Address                       | City        | PostalCode | Country |
 | :--------- | :--------------------------------- | :----------------- | :---------------------------- | :---------- | :--------- | :------ |
@@ -77,15 +81,13 @@ ALTER DATABASE : DB 수정하기
 
 
 
-# SELECT
+# :cookie: SELECT
 
-```sql
-SELECT column1, column2, ... FROM table_name;
-```
+>  조건에 맞게 가져오자
 
 
 
-## table 전부를 확인하기
+## **[*]** 모든 column 가져오기
 
 ```sql
 SELECT * FROM Customers;
@@ -93,7 +95,11 @@ SELECT * FROM Customers;
 
 
 
-## 특정 field만 가져오기
+## 일부 column 가져오기
+
+```sql
+SELECT column1, column2, ... FROM table_name;
+```
 
 ```sql
 SELECT CustomerName, City FROM Customers;
@@ -101,7 +107,28 @@ SELECT CustomerName, City FROM Customers;
 
 
 
-## DISTINCT 한 ROWS만 가져오기
+## **[AS]** 특정 이름으로 가져오기
+
+1. SELECT로 가져올 정보를 명시하고
+2. AS로 이름 지정
+
+```sql
+SELECT column1, column2, ... AS new_name FROM table_name;
+```
+
+
+
+**Cutomers가 몇개의 record를 가지고 있는지 찾고 `number_of_customers`에 저장하라**
+
+```sql
+SELECT COUNT(*) AS number_of_customers FROM Customers;
+```
+
+![image-20201108140351322](fig/image-20201108140351322.png)
+
+
+
+## **[DISTINCT]** unique한 값만 가져오기
 
 ```SQL
 SELECT DISTINCT column1, column2, ... FROM table_name;
@@ -113,11 +140,29 @@ SELECT DISTINCT column1, column2, ... FROM table_name;
 
 
 
-## DISTINCT한 DATA의 갯수는?
+**Country의 unique한 값만 뽑아서 UniqueCountries로 저장해보자.**
 
-> 두개의 column 을 묶어서 unique한걸 보고 싶을 땐 어떻게 해야할까
+```sql
+SELECT Country AS UniqueCountries
+FROM (SELECT DISTINCT Country FROM Customers);
+```
 
-`COUNT == len(set())`
+![image-20201108135800016](fig/image-20201108135800016.png)
+
+
+
+## **[COUNT]** 현재 table의 record는 몇개?
+
+```sql
+SELECT COUNT(params) FROM table_name;
+```
+
+* `(*)` 전부
+* `(columns)` 특정 columns (`DISTINCT`와 같이 쓸 때 유의미할듯)
+
+
+
+**Unique한 Country가 몇개인지 출력하라**
 
 ```sql
 SELECT COUNT(DISTINCT column) FROM table_name;
@@ -129,33 +174,211 @@ SELECT COUNT(DISTINCT column) FROM table_name;
 
 
 
-위에서 정의한 값 21을 `DistinctCountries`라는 변수명으로 저장해보자.
-
-SELECT의 결과 역시 table이다. COUNT라는 field에 1개의 record를 가지고 있다.
-
-이 table을 FROM에 넣고 Count field를 선택하여 `AS`를 통해 이름을 부여한다.
-
-> `SELECT Count(*)`의 Count는 함수가 아니라 변수명이다.
+**Unique한 country의 갯수를 세어 `number_of_contries`에 저장하라**
 
 ```sql
-SELECT Count(*) AS DistinctCountries
-FROM (SELECT DISTINCT Country FROM Customers)
+SELECT COUNT(DISTINCT Country) AS number_of_contries FROM Customers;
 ```
 
-| DistinctCountries |
-| :---------------- |
-| 21                |
+```sql
+SELECT COUNT(*) AS number_of_contries
+FROM (SELECT DISTINCT Country) FROM Customers;
+```
+
+![image-20201108140511328](fig/image-20201108140511328.png)
 
 
 
-## 조건에 맞는 data 가져오기
+## **[WHERE]** 조건에 맞는 data 가져오기
+
+> 여러개의 조건은 and/or로 연결
+
+```sql
+SELECT * FROM Customers
+WHERE Country = 'Mexico' or Country = 'berlin'
+```
+
+```sql
+SELECT * FROM Customers
+WHERE CustomerID = 1;
+```
+
+> 괄호로 조건 구분
+
+```sql
+SELECT * FROM Customers
+WHERE Country='Germany' AND (City='Berlin' OR City='München');
+```
+
+```sql
+SELECT * FROM Customers
+WHERE NOT (Country='Germany' or Country='USA');
+```
+
+
+
+* not equal : `<>` 또는 `not column = value`
+* `BETWEEN`
+* `LIKE`
+* `IN`
+
+
+
+**참고 ) SELECT보다 WHERE이 우선이다.**
+
+```sql
+SELECT Country FROM Customers
+where CustomerID = 1;
+```
+
+
+
+**city가 berlin이 아닌 경우만 선택하라**
+
+```sql
+SELECT * FROM Customers
+WHERE NOT city = 'Berlin' 또는 WHERE citi <> 'Berlin'
+```
+
+
+
+**city는 berlin이고 postalcode는 12209인 모든 record를 조회하라**
+
+```sql
+SELECT * FROM Customers
+WHERE city = 'berlin' and postalcode = 12209
+```
+
+
+
+#### IS NULL / IS <u>NOT</u> NULL
+
+> **=** 대신 `IS` , `IS NOT` 을 이용
+
+```sql
+WHERE City IS NULL;
+```
+
+
+
+## **[ORDER BY]** 정렬하기
+
+> default는 ASC 오름차순 ~
+>
+> column1에서 같은 우선순위 => column로 정렬 => ...
+>
+> **쉼표 까먹지 말자 ㅎㅎ,,**
+
+```sql
+SELECT column1, column2, ...
+FROM table_name
+ORDER BY column1, column2, ... ASC|DESC
+```
+
+
+
+**각각 다르게 차순을 설정해줄 수도 있다**
+
+```sql
+ORDER BY col1 ASC, col2 DESC;
+```
+
+
+
+## **[TOP]** topk개를 고른다 [link](https://www.w3schools.com/sql/sql_top.asp)
 
 
 
 
 
-# JOIN
+# [:milk_glass:](https://www.w3schools.com/sql/sql_insert.asp) INSERT INTO
 
+> 모든 field를 지정할 필요는 없다. 나머지는 `NULL`로 채워진다.
+
+```sql
+INSERT INTO Customers
+(CustomerName, ContactName, Address, City, PostalCode, Country) # customerID는 지정하지 않았음! 자동 생성?
+
+VALUES
+('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');
+```
+
+> 웹 실습시에는  `INSERT INTO` 후에 다시 SELECT를 통해 전체 table을 조회하면 추가된 table을 확인할 수 있다.
+
+
+
+`INSERT INTO Customers (CustomerID) values (999) ` 실행 후 위 코드를 실행한 결과.
+
+CustomerID는 이전에 추가된 값을 참고하여 자동으로 붙이는듯?
+
+![image-20201108151556725](fig/image-20201108151556725.png)
+
+
+
+
+
+# [:strawberry:](https://www.w3schools.com/sql/sql_update.asp) UPDATE
+
+> 기존에 존재하는 data를 수정하는 명령어.
+>
+> 어떤 조건의 데이터를 `WHERE` 어떻게 설정할 것인지 `SET` 명시해주어야 한다.
+>
+> **WHERE이 없으면 모든 record가 변경되니 주의 !**
+
+```sql
+UPDATE table_name
+SET column1 = value1, colum2 = value2, ...
+WHERE condition;
+```
+
+
+
+**CustomerID가 1인 사람의 ContactName, City를 Alfred, Frankfurt로 변경하라**
+
+```sql
+UPDATE Customers
+SET ContactName = Alfred, City = Frankfrut
+WHERE CustomerID = 1;
+```
+
+
+
+**Country가 Mexico인 record의 ContactName을 Juan으로 변경하라**
+
+```sql
+UPDATE Customers
+SET ContactName = 'juan'
+WHERE Country = 'Mexico';
+```
+
+
+
+# [:cookie:](https://www.w3schools.com/sql/sql_delete.asp) DELETE
+
+```sql
+DELETE FROM table_name WHERE condition;
+```
+
+
+
+**CustomerName이 Alfreds인 record 삭제하기**
+
+```sql
+DELETE FROM Customers
+WHERE CustomerName = 'Alfreds';
+```
+
+
+
+**모든 record 삭제하기. 즉 속성, index, 구조 등을 모두 지운다**
+
+```sql
+DELETE FROM table_name;
+```
+
+
+
+# [:cookie:](https://www.w3schools.com/sql/sql_join.asp) JOIN
 
 `INNER JOIN` : 교집합. 조건에 맞으면서 두 테이블에 모두 있는 데이터만 가져온다.
 
@@ -175,15 +398,6 @@ FROM (SELECT DISTINCT Country FROM Customers)
 
 
 
-```mysql
-SELECT count(*) as 'Output' 
-FROM FAMLIES F  
-JOIN COUNTRIES C
-ON F.FAMILY_SIZE >= C.MIN_SIZE 
-GROUP BY F.ID
-order by 1 desc
-limit 1;
-```
 
 
 
@@ -204,12 +418,7 @@ limit 1;
 
 
 
-
-
-
-
-
-# :lemon: DBMS 차이점
+# DBMS 차이점
 
 > 면접 빈출 질문 !
 
@@ -275,12 +484,6 @@ limit 1;
     > `cluster`?
     >
     > 자주 사용되는 table의 데이터를 디스크의 같은 위치에 저장시켜서, 디스크로부터 데이터를 읽어오는 시간을 줄인다.
-
-
-
-
-
-# 
 
 
 
