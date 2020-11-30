@@ -110,27 +110,19 @@ class BuildVocab:
         self.data = subsampling
 
     def build_context_set(self): # (중심 단어, (주변 단어1, 주변 단어1)), (중심단어, (주변 단어1, 주변 단어 2, ...) 
-        # self.context = []
-        # for line in self.data:
-        #     for i in range(len(line)):
-        #         center = line[i]
-
-        #         tmp = []
-        #         for j in range(i-self.window_size, i+self.window_size+1):
-        #             if j < 0 or j >= len(line) or j == i:
-        #                 continue
-        #             tmp.append(self.vocab[line[j]])
-        #         self.context.append([tmp,self.vocab[center]])
-
         self.context = []
         for line in self.data:
+            if len(line) < 2:
+                continue
             for i in range(len(line)):
                 center = line[i]
 
+                tmp = []
                 for j in range(i-self.window_size, i+self.window_size+1):
                     if j < 0 or j >= len(line) or j == i:
                         continue
-                    self.context.append([self.vocab[line[j]],self.vocab[center]])
+                    tmp.append(self.vocab[line[j]])
+                self.context.append([tmp,self.vocab[center]])
 
         print('pairs of target and context words :', len(self.context))
         print("Context examples :",self.context[10:15])
