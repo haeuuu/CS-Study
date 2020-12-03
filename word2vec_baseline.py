@@ -13,37 +13,27 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
 
+from collections import Counter
+from itertools import chain
+import zipfile
+import os
+import random
 
-class BuildVocab:
-    def __init__(self, dir,max_vocab_size = -1, min_counts = 200, window_size = 2):
-        """
-        freq (counter) : word to frequency
-        vocab (dict) : word to index
-        context (list) : [ [주변단어] , 중심단어]
-        """
+class ExampleDownloader:
+    def __init__(self, dir):
         self.dir = dir
-        self.max_vocab_size = max_vocab_size
-        self.min_counts = min_counts
-        self.window_size = window_size
         self.stopwords = stopwords.words('english')
         self.nlp = spacy.load('en', disable=['ner', 'parser'])
 
-        print("*** Download and Cleaning Data ***")
+        print("*** Download ***")
         self.download_dataset()
+        print("*** Cleaning Data ***")
         self.cleaning_data()
-
-        print("*** Build Vocabulary ***")
-        self._get_frequency_and_vocab()
-
-        print("*** Subsampling ***")
-        self.subsampling()
-        print("*** Build Context set ***")
-        self.build_context_set()
     
     def download_dataset(self):
 
         if 'bbc-text.csv' not in os.listdir():
-            filename,_ = request.urlretrieve('https://raw.githubusercontent.com/susanli2016/PyCon-Canada-2019-NLP-Tutorial/master/bbc-text.csv', dir+'bbc-text.csv')
+            filename,_ = request.urlretrieve('https://raw.githubusercontent.com/susanli2016/PyCon-Canada-2019-NLP-Tutorial/master/bbc-text.csv', self.dir+'bbc-text.csv')
         with open('bbc-text.csv', 'r') as f:
             data = f.read()
         self.raw_data = re.split('\n\w+?,',data)[1:]
@@ -61,10 +51,32 @@ class BuildVocab:
         return [i for i in text.split() if i not in self.stopwords]
 
     def cleaning_data(self):
-        self.data = [self._clean_text(line) for line in self.raw_data]
+        self.raw_data = [self._clean_text(line) for line in self.raw_data]
+        
+ class Vocabulary:
+    def __init__(self, data, max_vocab_size = -1, min_counts = 200, window_size = 2):
+        """
+        Skip gram을 위한 vocab과 dataset을 생성
+        freq (counter) : word to frequency
+        vocab (dict) : word to index
+        context (list) : [ [ center, [context] ], ... ]
+        """
+        self.raw_data = data
+        self.max_vocab_size = max_vocab_size
+        self.min_counts = min_counts
+        self.window_size = window_size
+
+        print("*** Build Vocabulary ***")
+        self._get_frequency_and_vocab()
+
+        print("*** Subsampling ***")
+        self.subsampling()
+
+        print("*** Build Context set ***")
+        self.build_context_set()
 
     def _get_frequency_and_vocab(self):
-        most_common = Counter(chain.from_iterable(self.data)).most_common()
+        most_common = Counter(chain.from_iterable(self.raw_data)).most_common()
         if self.max_vocab_size > 0:
             most_common = most_common[:self.max_vocab_size]
         most_common_words = [word for word, count in most_common if count >= self.min_counts]
@@ -72,7 +84,7 @@ class BuildVocab:
         self.freq = {word:0 for word in most_common_words}
     
         filtered_data = []
-        for line in self.data:
+        for line in self.raw_data:
             tmp = []
             for word in line:
                 if self.freq.get(word) is None:
@@ -80,7 +92,7 @@ class BuildVocab:
                 self.freq[word] += 1
                 tmp.append(word)
             filtered_data.append(tmp)
-        self.data = filtered_data
+        self.raw_data = filtered_data
 
         self.freq = Counter(self.freq)
         vocab = [i for i,j in self.freq.most_common()]
@@ -91,133 +103,170 @@ class BuildVocab:
         print("> Vocab size :",self.vocab_size)
         print('> Most common words :', self.freq.most_common(10))
 
-    def _get_keep_prob(self):
+    def _get_drop_prob(self):
         total = sum(self.freq.values())
-        keep_prob = lambda x: 1e-3*((1e3*x)**(1/2)+1)/x
-        self.keep_rate = {word:keep_prob(freq/total) for word, freq in self.freq.items()}
+        drop_prob = lambda x: max(0, 1-(1e-4/x)**(1/2))
+        self.drop_rate = {word:drop_prob(freq/total) for word, freq in self.freq.items()}
+
+    def _drop_this_word(self, word):
+        # uniform(0,1)에서 sample하나를 뽑고 keep prob와 비교하여 keep하거나 remove
+        return random.uniform(0,1) < self.drop_rate[word]
 
     def subsampling(self):
-        self._get_keep_prob()
+        self._get_drop_prob()
 
         subsampling = []
-        for line in self.data:
+        for line in self.raw_data:
             tmp = []
             for word in line:
-                if random.random() < self.keep_rate[word]:
-                    # uniform(0,1)에서 sample하나를 뽑고 keep prob와 비교하여 keep하거나 remove
+                if not self._drop_this_word(word):
                     tmp.append(word)
             subsampling.append(tmp)
         self.data = subsampling
 
-    def build_context_set(self): # (중심 단어, (주변 단어1, 주변 단어1)), (중심단어, (주변 단어1, 주변 단어 2, ...) 
+    def build_context_set(self): # (중심 단어, (주변 단어1, 주변 단어1)), (중심단어, (주변 단어1, 주변 단어 2, ...)
+        self.center = []
         self.context = []
         for line in self.data:
             if len(line) < 2:
                 continue
-            for i in range(len(line)):
+            for i in range(len(line)): # center가 i일 때
+                context = []
                 center = line[i]
-
-                tmp = []
                 for j in range(i-self.window_size, i+self.window_size+1):
                     if j < 0 or j >= len(line) or j == i:
                         continue
-                    tmp.append(self.vocab[line[j]])
-                self.context.append([tmp,self.vocab[center]])
+                    context.append(self.vocab[line[j]])
+                if context:
+                    self.context.append(context)
+                    self.center.append([self.vocab[center]])
 
-        print('pairs of target and context words :', len(self.context))
-        print("Context examples :",self.context[10:15])
+        print('> pairs of target and context words :', len(self.context))
+        print("> Center examples :",self.center[:5])
+        print("> Context examples :",self.context[:5])        
 
+        
 class SkipGram(nn.Module):
-    def __init__(self,vocab , hidden_size, batch_size, negative_sample_size):
+    def __init__(self,vocabulary, hidden_size = 200 , negative_sample_size = 5 ,batch_size = 200, padding_idx = 0):
         super(SkipGram, self).__init__()
-        self.vocab = vocab.vocab
-        self.freq = vocab.freq
-        self.context = vocab.context
-        self.batch_size = batch_size
-        self.vocab_size = vocab.vocab_size
-        self.hidden_size = hidden_size
-        self.negative_sample_size = negative_sample_size
+        self.center, self.context = vocabulary.center, vocabulary.context
+        self.freq = vocabulary.freq
+        self.vocab_size = vocabulary.vocab_size
+        self.word_to_idx = vocabulary.vocab
+        self.idx_to_word = {j:i for i,j in self.word_to_idx.items()}
 
-        self._get_negative_sampling_prob()
+        self.hidden_size = hidden_size
+        self.batch_size = batch_size
+        self.negative_sample_size = negative_sample_size
+        self.padding_idx = padding_idx
+        self.neg_candidates = []
+
+        print('*** Negative sampling ***')
+        self.negative_sampling()
+
+        print('*** Batchify ***')
+        self.batchify()
 
         self.U = nn.Embedding(self.vocab_size, self.hidden_size)
-        self.V = nn.Linear(self.hidden_size,self.vocab_size)
-
-        self.log_sigmoid = nn.LogSigmoid()
-
-    def dataloader(self):
-        for start in range(0, len(self.context),self.batch_size):
-            target_batch, center_batch = zip(*self.context[start:start+self.batch_size])
-
-            yield center_batch, target_batch
-
-    def _get_negative_sampling_prob(self):
-        total = sum(f**(3/4) for f in self.freq.values())
-        sampling_prob = lambda x: x**(3/4)/total
-        self.negative_sampling_prob = torch.tensor([sampling_prob(freq) for freq in self.freq.values()])
-
-    def _get_negative_samples(self,excluded_ids):
-        temp_prob = self.negative_sampling_prob.clone()
-        temp_prob[excluded_ids] = 0.
-
-        return torch.multinomial(temp_prob, self.negative_sample_size)
-
-    def negative_sampling(self,input_ids, target_ids):
-        """
-        target : 정답:1, negative sample:-1, 그외:0인 tensor
-        """
-        dim = len(input_ids)
-        indicator = torch.zeros((dim,self.vocab_size))
-
-        for i,(in_ids, tar_ids) in enumerate(zip(input_ids, target_ids)):
-            excluded_ids = [in_ids,tar_ids]
-            negative_ids = self._get_negative_samples(excluded_ids)
-            
-            indicator[i,negative_ids] = -1
-            indicator[i,target_ids] = 1
-            
-        return indicator
-
-    def forward(self,input_ids):
-
-        center_embedding = self.U(torch.tensor(input_ids))
-        output = self.V.forward(center_embedding)
+        self.V = nn.Embedding(self.vocab_size, self.hidden_size)
         
-        return output
+        self.dist = nn.PairwiseDistance()
+    
+    def _cal_negative_sampling_prob(self):
+        sampling_weight = lambda x: x**(0.75)
+        self.negative_sampling_prob = []
+        for i in range(self.vocab_size):
+            word = self.idx_to_word[i]
+            self.negative_sampling_prob.append(sampling_weight(self.freq[word]))
+        self.negative_sampling_prob = torch.tensor(self.negative_sampling_prob)
 
-    def loss(self,pred,indicator):
-        elements = self.log_sigmoid(pred*indicator)
-        loss = - elements.sum(axis = 1).mean()
+    def _get_negative_sample(self):
+        if len(self.neg_candidates) == 0:
+            self.neg_candidates = torch.multinomial(self.negative_sampling_prob, 10000,replacement = True).tolist()
+        return self.neg_candidates.pop()
 
-        return loss
+    def negative_sampling(self):
+        self._cal_negative_sampling_prob()
+        self.negative_samples = []
 
-    def get_examples(self):
-        self.index_to_word = {j:i for i,j in self.vocab.items()}
-        # w = self.U.weight.detach()
-        # sims = cosine_similarity(w)
+        for i in range(len(self.center)):
+            negative_ids = [self.center[i]] + self.context[i]
+            remove_soon = len(negative_ids)
+            while len(negative_ids) < self.negative_sample_size + remove_soon:
+                neg = self._get_negative_sample()
+                if neg in negative_ids:
+                    continue
+                negative_ids.append(neg)
+            negative_ids = negative_ids[remove_soon:]
+            self.negative_samples.append(negative_ids)
 
-        # for center in ['government','president','economy','minister','economic','digital','industry','foreign','campaign']:
-        #     print(center, end = ' => ')
-        #     i = self.vocab[center]
-        #     topk = sims[i].argsort()[-8:-1][::-1]
-        #     print([(index_to_word[j], sims[i][j]) for j in topk])
+        print('> Negative sample :',self.negative_samples[:5])   
+    
+    def batchify(self):
+        self.batch = []
 
-        w = model.U
-        dist = nn.PairwiseDistance()
-        for center in ['government','president','economy','minister','economic','digital','industry','foreign','campaign']:
-            i = model.vocab[center]
-            w_i = w(torch.tensor([i]))
-            temp = []
-            for j in range(model.vocab_size):
-                w_j = w(torch.tensor([j]))
-                temp.append([round(float(dist(w_i, w_j)),3),index_to_word[j]])
-            temp.sort(key = lambda x: x[0])
-            print(center, temp[1:11])
+        for start in range(0, len(self.center), self.batch_size):
+            center_batch = self.center[start:start+self.batch_size]
+            context_neg_batch = self.context[start:start+self.batch_size]
+            label_batch = []
+            mask_batch = []
+
+            max_len = max(len(c) for c in context_neg_batch) + self.negative_sample_size
+
+            for i in range(len(center_batch)):
+                context_length = len(context_neg_batch[i])
+                context_neg_batch[i].extend(self.negative_samples[start+i])
+
+                padding_length = max_len - context_length - self.negative_sample_size
+                context_neg_batch[i] += [self.padding_idx]*padding_length
+
+                label = [1]*(context_length) + [-1]*self.negative_sample_size + [0]*padding_length
+                label = [[i] for i in label]
+                mask = [1]*(context_length + self.negative_sample_size) + [0]*padding_length
+                mask = [[i] for i in mask]
+
+                label_batch.append(label)
+                mask_batch.append(mask)
+
+            self.batch.append([torch.tensor(center_batch), torch.tensor(context_neg_batch)
+                                , torch.tensor(label_batch), torch.tensor(mask_batch)])
+             
+        print('> Batch (center)      :', self.batch[0][0].shape)
+        print('> Batch (context_neg) :', self.batch[0][1].shape)
+        print('> Batch (label)       :', self.batch[0][2].shape)
+        print('> Batch (mask)        :', self.batch[0][3].shape)
+
+    def forward(self,center_ids, context_neg_ids):
+
+        center_embedding = self.U(center_ids)
+        context_neg_embedding = self.V(context_neg_ids) # (batch_size, max_len , hidden_size)
+
+        center_embedding_t = center_embedding.transpose(1,2) # (batch_size, hidden_size, 1)
+        dot_product = torch.bmm(context_neg_embedding,center_embedding_t) # pairwise dot product
+
+        return dot_product
+
+    def get_similar_word(self, query):
+        W = self.U.weight
+        x = W[self.word_to_idx[query]]
+
+        # Compute the cosine similarity. Add 1e-9 for numerical stability.
+
+        cos = torch.matmul(W, x) / ( torch.sum(W * W, axis=1) * torch.sum(x * x) + 1e-9).sqrt()
+        print(cos.shape)
+
+        topk = cos.argsort()[-10:].tolist()[::-1]
+
+        for i in topk:  # Remove the input words
+            print(round(float(cos[i]),3), self.idx_to_word[i],end = ' / ')
+
+        return topk
         
 if __name__=='__main__':
-    
-    vocab = BuildVocab(dir = '' , max_vocab_size = -1 , min_counts = 50, window_size = 2)
-    model = SkipGram(vocab = vocab , hidden_size = 100, batch_size = 2000, negative_sample_size = 10)
+
+    example = ExampleDownloader(dir = '')
+    vocab = Vocabulary (example.raw_data, max_vocab_size = -1 , min_counts = 10, window_size = 3 )
+    model = SkipGram(vocabulary = vocab, hidden_size = 50, negative_sample_size = 5 ,batch_size = 512, padding_idx = 0)
 
     # train
     optimizer = optim.SGD(model.parameters(), lr=0.05)
