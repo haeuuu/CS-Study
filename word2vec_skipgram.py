@@ -1,23 +1,18 @@
 import nltk
 import re, string, spacy
+from urllib import request
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 
-from urllib import request
 from collections import Counter
 import os, zipfile
+import random
 from itertools import chain
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
-
-from collections import Counter
-from itertools import chain
-import zipfile
-import os
-import random
 
 class ExampleDownloader:
     def __init__(self, dir):
@@ -53,7 +48,7 @@ class ExampleDownloader:
     def cleaning_data(self):
         self.raw_data = [self._clean_text(line) for line in self.raw_data]
         
- class Vocabulary:
+class Vocabulary:
     def __init__(self, data, max_vocab_size = -1, min_counts = 200, window_size = 2):
         """
         Skip gram을 위한 vocab과 dataset을 생성
@@ -143,7 +138,7 @@ class ExampleDownloader:
 
         print('> pairs of target and context words :', len(self.context))
         print("> Center examples :",self.center[:5])
-        print("> Context examples :",self.context[:5])        
+        print("> Context examples :",self.context[:5])   
 
         
 class SkipGram(nn.Module):
@@ -169,8 +164,6 @@ class SkipGram(nn.Module):
 
         self.U = nn.Embedding(self.vocab_size, self.hidden_size)
         self.V = nn.Embedding(self.vocab_size, self.hidden_size)
-        
-        self.dist = nn.PairwiseDistance()
     
     def _cal_negative_sampling_prob(self):
         sampling_weight = lambda x: x**(0.75)
@@ -220,10 +213,11 @@ class SkipGram(nn.Module):
                 padding_length = max_len - context_length - self.negative_sample_size
                 context_neg_batch[i] += [self.padding_idx]*padding_length
 
-                label = [1]*(context_length) + [-1]*self.negative_sample_size + [0]*padding_length
-                label = [[i] for i in label]
-                mask = [1]*(context_length + self.negative_sample_size) + [0]*padding_length
-                mask = [[i] for i in mask]
+                # label = [1.]*(context_length) + [-1.]*self.negative_sample_size + [0.]*padding_length
+                label = [1.]*(context_length) + [0.]*self.negative_sample_size + [0.]*padding_length
+                # label = [[i] for i in label]
+                mask = [1.]*(context_length + self.negative_sample_size) + [0.]*padding_length
+                # mask = [[i] for i in mask]
 
                 label_batch.append(label)
                 mask_batch.append(mask)
@@ -244,45 +238,61 @@ class SkipGram(nn.Module):
         center_embedding_t = center_embedding.transpose(1,2) # (batch_size, hidden_size, 1)
         dot_product = torch.bmm(context_neg_embedding,center_embedding_t) # pairwise dot product
 
-        return dot_product
+        # return dot_product
+        return dot_product.squeeze(2)
 
     def get_similar_word(self, query):
         W = self.U.weight
         x = W[self.word_to_idx[query]]
-
-        # Compute the cosine similarity. Add 1e-9 for numerical stability.
-
+        
         cos = torch.matmul(W, x) / ( torch.sum(W * W, axis=1) * torch.sum(x * x) + 1e-9).sqrt()
-        print(cos.shape)
 
         topk = cos.argsort()[-10:].tolist()[::-1]
 
-        for i in topk:  # Remove the input words
+        for i in topk[1:]:  # Remove the input words
             print(round(float(cos[i]),3), self.idx_to_word[i],end = ' / ')
 
         return topk
         
 if __name__=='__main__':
-
+    
     example = ExampleDownloader(dir = '')
-    vocab = Vocabulary (example.raw_data, max_vocab_size = -1 , min_counts = 10, window_size = 3 )
+    vocab = Vocabulary (example.raw_data, max_vocab_size = -1 , min_counts = 30, window_size = 3 )
+    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = SkipGram(vocabulary = vocab, hidden_size = 50, negative_sample_size = 5 ,batch_size = 512, padding_idx = 0)
 
     # train
-    optimizer = optim.SGD(model.parameters(), lr=0.05)
+    model.to(device)
+    model.train()
 
-    for ep in range(20):
+    optimizer = optim.Adam(model.parameters(), lr = 0.05)
+
+    for ep in range(5):
         i = 0
-        for input_ids, target_ids in model.dataloader():
+        for center_ids, context_neg_ids, label, mask in model.batch:
             optimizer.zero_grad()
-            output = model.forward(input_ids)
-            indicator = model.negative_sampling(input_ids, target_ids)
-            loss = model.loss(output, indicator)
-            loss.backward()
+            dot_product = model.forward(center_ids.to(device), context_neg_ids.to(device))
+
+            # reduction = 'mean(default)'은 batch_size*class 갯수로 나눠짐. mask 고려해야할거같은데..
+            Bceloss = nn.BCEWithLogitsLoss(mask.to(device))
+            l = Bceloss(dot_product, label.to(device))
+
+            l.backward()
             optimizer.step()
-            if i%100 == 0:
-                print(loss)
+
+            if i%200 == 0:
+                print(l)
             i += 1
 
         print(f"{ep} 끗 ***********")
-        model.get_examples()
+        
+        
+    # 유사한 단어 탐색
+    model.to('cpu')
+    model.eval()
+
+    for center in ['digital','military','technology','economic']:
+        print(center)
+        model.get_similar_word(center)
+        print()
