@@ -175,3 +175,30 @@ $ python example.py
 
 ![image-20200920160015603](fig/image-20200920160015603.png)
 
+##### 1. docker에서 container list확인
+
+```
+$ docker container ls
+
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+20c74eac544f        elevator            "/bin/sh -c ./elevat…"   21 hours ago        Up 21 hours         0.0.0.0:8000->8000/tcp   eloquent_heyrovsky
+```
+
+
+
+##### 2. container id를 이용해서 stop해주기
+
+```
+$ docker stop 20c74eac544f
+```
+
+
+
+##### 3. 재시작
+
+```
+$ docker run -p 8000:8000 elevator
+```
+
+
+
