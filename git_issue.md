@@ -39,3 +39,21 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 4. 수정 사항을 `add`, `commit`하자.
 5. `git push origin master`
+
+
+### 지워버린 파일 복구하기
+```
+git checkout filename
+```
+
+### 직전 commit 되돌리기
+```
+git reset HEAD~1
+```
+직전 commit 1개를 취소할 수 있다.
+
+### push 되돌리기
+github 페이지에서 history를 열어보면 commit id가 있다. 복사버튼으로 복사해서
+```
+git reset commit_id
+```
