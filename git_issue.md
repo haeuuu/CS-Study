@@ -57,3 +57,15 @@ github 페이지에서 history를 열어보면 commit id가 있다. 복사버튼
 ```
 git reset commit_id
 ```
+
+### repo의 commit list 또는 특정 파일의 commit list 확인하기
+```
+git log
+git log filename
+```
+
+### 직전 commit과 코드 비교하기
+```
+git diff filename
+```
+enter를 통해 다음 코드를 확인하고 q로 빠져나온다.
