@@ -57,6 +57,8 @@ github 페이지에서 history를 열어보면 commit id가 있다. 복사버튼
 ```
 git reset commit_id
 ```
+local에서만 되돌려진 상태이므로 git pull origin master를 통해 병합해야한다.  
+pull 전에 commit and push 하면 충돌이 일어남!
 
 ### repo의 commit list 또는 특정 파일의 commit list 확인하기
 ```
