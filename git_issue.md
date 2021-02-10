@@ -71,3 +71,25 @@ git log filename
 git diff filename
 ```
 enter를 통해 다음 코드를 확인하고 q로 빠져나온다.
+
+### .gitignore 적용하기
+repo 생성과 동시에 생성하면 .gitignore도 repo에 노출된다. 이것이 싫다면!
+
+1. cache를 제거하고
+```
+git -rm -r --cached .
+```
+이 경우 `git status`의 출력은
+```
+deleted : .gitignore
+deleted : README.md
+```
+2. 그러나 readme.md는 제거할 필요 없으므로
+```
+git reset HEAD README.md
+```
+`git status`
+```
+deleted : .gitignore
+```
+3. 이제 add 후 commit하면 끝 !
