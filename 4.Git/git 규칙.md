@@ -4,11 +4,11 @@
 유의미한 수정이 있을 때마다 git에 commit하고 있는데, 내가 정한 나만의 commit 규칙을 정리해보려고 한다!
 
 #### 명확하게 잘 사용하고 있다고 생각되는 commit 들
-`refactor` : 코드 리팩토링. 로직은 수정하지 않는다.
-`feature` : 새로운 기능(function, class, method 등)을 추가한다.
-`improve` : 로직을 개선한다. 
-`fix` : 에러가 발생하는 경우에 코드를 개선한다.
-`rename` : 파일 이름을 변경한다.
+* `refactor` : 코드 리팩토링. 로직은 수정하지 않는다.
+* `feature` : 새로운 기능(function, class, method 등)을 추가한다.
+* `improve` : 로직을 개선한다. 
+* `fix` : 에러가 발생하는 경우에 코드를 개선한다. (오타 수정부터 예외 처리를 못한 경우까지)
+* `rename` : 파일 이름을 변경한다.
 
 ### 고민해볼 사항
 * `update`, `modified` : refacor와 섞어쓰고 있다. 명확한 분리가 필요하다.
