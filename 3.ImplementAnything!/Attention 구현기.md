@@ -35,7 +35,7 @@ step 1부터 4까지 회색 네모로 적어놓았다! 간단하게 서술해보
 3. 이를 이용해서 weighted sum을 한다.
 4. 3번에서 나온 vector와, 1번에서 가져온 t시점의 vector를 concat한다. 이를 이용해서 prediction을 진행한다.
 
-![image-20210223173437453](fig/image-20210223173437453.png)
+![image-20210223173437453](../fig/image-20210223173437453.png)
 
 * Decoder에서 t 시점의 hidden state 역할을 하는 것이 `Query`
 * Encoder에서 모든 시점의 hidden state 역할을 하는 것이 `Key`
@@ -55,13 +55,13 @@ Attention을 아예 처음 본다면, [Seq2Seq부터 Transfomer까지의 큰그�
 
 #### :swimming_man: 한 번 스윽 훑고 가자!
 
-![image-20210223173925774](fig/image-20210223173925774.png)
+![image-20210223173925774](../fig/image-20210223173925774.png)
 
 
 
 ### `A. Scaled Dot-Product Attention`
 
-![image-center](fig/photo9.png)
+![image-center](../fig/photo9.png)
 
 Attention value를 계산하는 방법은 다양하지만, Transformer는 `Scaled Dot-Product Attention`을 사용한다.
 
