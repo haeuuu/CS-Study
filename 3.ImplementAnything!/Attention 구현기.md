@@ -20,9 +20,9 @@ Attention을 이용해 1 ) 플레이 리스트의 전반적인 특성 2 ) 최근
 
 ## 1 ) Seq2Seq에서의 attention
 
-아래 나올 Attention의 구조를 공부하다보면, **"이해는 하겠는데, 그래서 Query, Key, Value의 역할이 대체 뭐야?"** 하는 의문이 들 수 있다. (난 들었다 ㅎㅎ)
+아래 나올 Attention의 구조를 공부하다보면, **"이해는 하겠는데, 그래서 Query, Key, Value의 역할이 대체 뭐야?"** 하는 의문이 들 수 있다. 나는 들었다 ...
 
-이를 Seq2Seq의 Attention에 적용해서 생각해보면, 각각의 역할이 납득이 된다.
+이를 Seq2Seq의 Attention에 적용해서 생각해보면 감이 오는데, 구현해보면서 혹시 틀렸으면 고쳐야겠다 헤헤
 
 
 
@@ -40,8 +40,6 @@ step 1부터 4까지 회색 네모로 적어놓았다! 간단하게 서술해보
 * Decoder에서 t 시점의 hidden state 역할을 하는 것이 `Query`
 * Encoder에서 모든 시점의 hidden state 역할을 하는 것이 `Key`
 * 각 단어에 대한 score를 이용해서 최종 vector를 내보내는 역할을 하는 것이 `Value`
-
-
 
 
 
@@ -81,7 +79,35 @@ Attention value를 계산하는 방법은 다양하지만, Transformer는 `Scale
    Attention(Q,K,V) = softmax(QKt/r_d_k)*V
    ```
 
-   
+
+
+
+```python
+class ScaledDotProductAttention(nn.Module):
+    def __init__(self, d_head):
+        super().__init__()
+        self.d_head = d_head
+
+    def forward(self , Q , K , V , mask):
+        # 1. Q*Kt MatMul
+        scores = torch.matmul(Q,K.transpose(-1,-2)) # (batchsize, -, -) 형태이므로 -1,-2만 transpose
+        
+        # 2. Scale
+        scaled_scores = scores/self.d_head**0.5
+        
+        # 3. Mask(opt.)
+        scaled_scores = scaled_scores.masked_fill(mask, -1e9)
+
+        # 4. Softmax
+        prob = torch.softmax(QKt, dim = -1)
+
+        # 5. MatMul
+        context = torch.matmul(prob, V)
+
+        return context, prob
+```
+
+
 
 ### `B.Multi-Head Attention`
 
@@ -115,11 +141,11 @@ MultiHead(Q,K,V)
 
 
 
----
-
-
-
 ##### Reference
 
-https://catsirup.github.io/ai/2020/04/07/transformer.html
+* [Attention is All you need 논문 리뷰](https://catsirup.github.io/ai/2020/04/07/transformer.html)
+* [Transformer 구현](https://paul-hyun.github.io/transformer-01/)
+* Pytorch
+  * [class MultiheadAttention](https://pytorch.org/docs/stable/_modules/torch/nn/modules/activation.html#MultiheadAttention)
+  * [def multi_head_attention](https://github.com/pytorch/pytorch/blob/master/torch/nn/functional.py)
 
