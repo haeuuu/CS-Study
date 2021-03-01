@@ -132,12 +132,70 @@ MultiHead(Q,K,V)
 
 
 
-**차원은 각각 얼마가 되야 할까?**
+하지만 구현할 때는 하나의 커다란 w_q를 만들어서 잘라 쓰면 된다. 즉 `w_q = [w_q_0 | w_q_1 | ... ]`
 
-* `W_Query` : `(d_model, d_key)`
-* `W_Key` : `(d_model, d_key)`
-* `W_value` : `(d_model, d_value)`
-* `W_output` : `(h*d_value, d_model)`
+```python
+# Reference : https://pytorch.org/docs/stable/_modules/torch/nn/modules/activation.html#MultiheadAttention
+# Reference : https://github.com/pytorch/pytorch/blob/master/torch/nn/functional.py
+
+class MultiheadAttention(nn.Module):
+    def __init__(self, num_heads, d_hidden, d_key = None, d_value = None):
+        super().__init__()
+        self.num_heads = num_heads
+        self.d_hidden = d_hidden
+        assert self.d_hidden%self.num_heads == 0, "d_hidden must be divisible by num_heads."
+        self.d_head = self.d_hidden//self.num_heads
+
+        # self.d_key = d_hidden if d_key is None else d_key
+        # self.d_value = d_hidden if d_value is None else d_value
+
+        self.w_query = nn.Parameter(torch.randn(self.d_hidden, self.num_heads * self.d_head))
+        self.w_key = nn.Parameter(torch.randn(self.d_hidden, self.num_heads * self.d_head))
+        self.w_value = nn.Parameter(torch.randn(self.d_hidden, self.num_heads * self.d_head))
+
+        self.scaled_dot_attention = ScaledDotProductAttention(d_head = self.num_heads * self.d_head)
+
+        self.last_linear = nn.Linear(self.num_heads * self.d_head, self.d_hidden) # nn.Linear ?
+
+    def linear(self, A, x, b = None):
+        """
+        Shape :
+            - x : (N, *, in_features) * ; additional dimensions
+            - A : (out_features, in_features)
+            - b : (out_features,)
+            - Outputs : (N, *, out_feautures)
+
+        return : x*AT + b
+        """
+
+        if b is None:
+            b = torch.zeros(A.shape[0])
+
+        return torch.matmul(x,A.transpose(-1,-2)) + b
+
+    def forward(self, Q, K, V, mask):
+        """
+        Inputs
+            - query : (batch size, target sequence length, embedding dimension)
+            - key : (batch size, source sequence length, embedding dimension)
+            - value : (batch size, source sequence length, embedding dimension)
+
+        Outputs
+            - outputs : (batch size, target sequence length, embedding dimension
+            - weights : (batch size, target sequence length, source sequence length)
+        """
+        q = self.linear(A = self.w_query, x = Q, b = None)
+        k = self.linear(A = self.w_key, x = K, b = None)
+        v = self.linear(A = self.w_value, x = V, b = None)
+
+        # mask = mask.unsqueeze(dim = 1).repeat(1,self.num_heads,1,1)
+
+        context, prob = self.scaled_dot_attention(Q = q, K = k, V = v, mask = mask)
+
+        output = self.last_linear(context)
+
+        return output, prob
+```
 
 
 
