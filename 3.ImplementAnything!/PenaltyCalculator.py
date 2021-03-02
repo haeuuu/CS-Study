@@ -1,13 +1,18 @@
 from datetime import datetime
 
 class PenaltyCalculator:
-    def __init__(self, monthly_fee = 350000, monthly_dues = 180000 ,deposit = 800000, expiration_date = '2021/06/08'):
+    def __init__(self, monthly_fee, monthly_dues, fixed, deposit, expiration_date):
         """
         Inputs:
-            월세, 공과금, 보증금, 최초계약만료일
+            - monthly_fee : 월세
+            - monthly_dues : 공과금
+            - fixed : 한달 고정 비용 ex ) 관리비
+            - deposit : 보증금
+            - expiration_date : 최초계약만료일
         """
         self.monthly_fee = monthly_fee
         self.monthly_dues = monthly_dues
+        self.fixed = fixed
         self.deposit = deposit
         self.expiration_date = self._to_datetime(expiration_date)
         self.start = self.expiration_date.day
@@ -17,7 +22,7 @@ class PenaltyCalculator:
 
     def deposit_penalty(self,notice_date_time,exit_date_time):
         """
-        고지시점부터 퇴실희망일까지 남은 기간에 따라 보증금의 일부를 위약금으로 부여한다.
+        퇴실 고지 시점(notice_date)부터 퇴실 희망일(exit_date)까지 남은 기간에 따라 보증금의 일부를 위약금으로 부여한다.
         """
         remaining_days = (exit_date_time - notice_date_time).days
 
@@ -36,7 +41,7 @@ class PenaltyCalculator:
 
     def expiration_penalty(self, exit_date_time):
         """
-        퇴실희망일부터 계약만료일까지 남은 기간에 따라 보증금의 일부를 위약금으로 부여한다.
+        퇴실 희망일(exit_date)부터 최초 계약 만료일(expiration_date)까지 남은 기간에 따라 보증금의 일부를 위약금으로 부여한다.
         """
 
         remaining_days = (self.expiration_date - exit_date_time).days
@@ -50,9 +55,10 @@ class PenaltyCalculator:
         remaining_days = (exit_date_time - next_start_time).days
 
         if remaining_days <= 0:
+            # 다음 월세 지불일 전에 퇴실한다면 0원 return
             return 0,0
 
-        return remaining_days, remaining_days * self.monthly_fee / 30 + 30000 # 관리비 3만원!
+        return remaining_days, remaining_days * self.monthly_fee / 30 + self.fixed
 
     def get_monthly_dues(self, exit_date_time, next_start_time, share = 4):
         """
@@ -67,7 +73,7 @@ class PenaltyCalculator:
 
     def get_penalty(self, notice_date , exit_date, share = 4):
         """
-        공지 일자와 퇴실 희망일을 이용하여 총 위약금을 계산한다.
+        퇴실 고지 일자(notice_date)와 퇴실 희망일(exit_date)을 이용하여 총 위약금을 계산한다.
         """
         notice_date_time = self._to_datetime(notice_date)
         exit_date_time = self._to_datetime(exit_date)
@@ -105,7 +111,6 @@ class PenaltyCalculator:
         """)
 
 if __name__ == '__main__':
-    cal = PenaltyCalculator(monthly_fee = 350000, monthly_dues = 180000 ,deposit = 800000, expiration_date = '2021/06/08')
+    cal = PenaltyCalculator(monthly_fee = 200000, monthly_dues = 100000 ,fixed = 30000, deposit = 500000, expiration_date = '2021/06/08')
     cal.get_penalty(notice_date = '2021/02/27', exit_date = '2021/03/08')
     cal.get_penalty(notice_date = '2021/02/27', exit_date = '2021/03/14')
-    cal.get_penalty(notice_date = '2021/02/27', exit_date = '2021/03/29')
