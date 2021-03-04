@@ -43,13 +43,13 @@ anaconda나 기본 command에서 하지 말고 git bash에서 돌리면 아~무 
 
 ##### 0. 설치 전 확인사항, 작업관리자 > CPU > "가상화" 가 사용 상태인가?
 
-![image-20200920142558149](fig/image-20200920142558149.png)
+![image-20200920142558149](../fig/image-20200920142558149.png)
 
 
 
 ##### 1. [GitHub link](https://github.com/docker/toolbox/releases)에서 가장 최신 ver의 `DockerToolbox-xx.xx.x.exe`를 다운받는다.
 
-![image-20200920143006068](fig/image-20200920143006068.png)
+![image-20200920143006068](../fig/image-20200920143006068.png)
 
 
 
@@ -57,9 +57,9 @@ anaconda나 기본 command에서 하지 말고 git bash에서 돌리면 아~무 
 
 > 이미 있는 사람은 설치 위치를 체크하자. 위치가 다르면 에러가 난다 ㅠㅠ
 
-![image-20200920143058380](fig/image-20200920143058380.png)
+![image-20200920143058380](../fig/image-20200920143058380.png)
 
-![image-20200920143114020](fig/image-20200920143114020.png)
+![image-20200920143114020](../fig/image-20200920143114020.png)
 
 
 
@@ -91,13 +91,13 @@ Docker가 깔린 폴더에 접근할 수 없어서 not installed라고 인식하
 
 2. Toolbox 설치 경로를 C드라이브 하위가 아니라 `C > User > 현재 User` 에 설치한다. (Git, VB 등 모두)
 
-   ![image-20200920152647609](fig/image-20200920152647609.png)
+   ![image-20200920152647609](../fig/image-20200920152647609.png)
 
 
 
 해결 !
 
-![image-20200920152450677](fig/image-20200920152450677.png)
+![image-20200920152450677](../fig/image-20200920152450677.png)
 
 
 
@@ -145,17 +145,17 @@ $ python example.py
 
 [이 블로그](https://sleepyeyes.tistory.com/71)에서 가져온 그림이 그 이유에 대한 명확한 설명을 해주고 있다.
 
-![img](fig/img.png)local과 내 window도 연결이 되어있고, VM과 docker 역시 `docker run -p 8000:8000`을 통해 연결시켰지만 window와 VM 사이에 연결이 아직 되어있지 않다 !
+![img](../fig/img.png)local과 내 window도 연결이 되어있고, VM과 docker 역시 `docker run -p 8000:8000`을 통해 연결시켰지만 window와 VM 사이에 연결이 아직 되어있지 않다 !
 
 고로 **포트포워딩**을 통해 window와 VM을 연결해주어야 한다.
 
 
 
-![image-20200920155734780](fig/image-20200920155734780.png)
+![image-20200920155734780](../fig/image-20200920155734780.png)
 
 
 
-![image-20200920155800410](fig/image-20200920155800410.png)
+![image-20200920155800410](../fig/image-20200920155800410.png)
 
 
 
@@ -173,7 +173,7 @@ $ python example.py
 
 
 
-![image-20200920160015603](fig/image-20200920160015603.png)
+![image-20200920160015603](../fig/image-20200920160015603.png)
 
 ##### 1. docker에서 container list확인
 
