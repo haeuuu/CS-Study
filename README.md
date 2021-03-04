@@ -26,6 +26,6 @@ Algorithm, Data structure 등 CS 지식을 올립니다.
 
 Github를 사용하며 만난 상황, 해결책을 기록합니다.
 
-## 5. Docker
+## 🐳 5. Docker
 Docker를 공부합니다. 사용하며 만난 상황, 해결책을 기록합니다.
 
